@@ -9,7 +9,9 @@ export default function SelectFiled(props: SelectFiledProps) {
   const { label, options } = props;
   return (
     <select className={styles.field}>
-      <option value={label}>{label}</option>
+      <option disabled value={label}>
+        {label}
+      </option>
       {options.map((option) => (
         <option key={option} value={option}>
           {option}
