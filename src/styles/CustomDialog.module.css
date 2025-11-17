@@ -1,0 +1,13 @@
+.dialogContainer {
+  width: 100vw;
+  height: 100vh;
+  z-index: 2000;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background-color: #ffffffc4;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
