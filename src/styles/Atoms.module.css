@@ -1,0 +1,6 @@
+.field {
+  width: calc(100% - 20px);
+  border-radius: 5px;
+  padding: 10px;
+  border: 2px gray solid;
+}
