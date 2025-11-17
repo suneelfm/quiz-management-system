@@ -4,6 +4,7 @@ import React, { MouseEventHandler, ReactNode } from "react";
 type CustomButtonProps = {
   children: ReactNode;
   onClick?: MouseEventHandler<HTMLButtonElement>;
+  [key: string]: any;
 };
 
 export default function CustomButton(props: CustomButtonProps) {
