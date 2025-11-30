@@ -4,6 +4,8 @@ import { Grid, Typography } from "@mui/material";
 import CustomButton from "../atoms/CustomButton";
 import { useNavigate } from "react-router-dom";
 import { Quiz } from "../../types/types";
+import CustomDialog from "../molecules/CustomDialog";
+import InputField from "../atoms/InputField";
 
 type QuizzesProps = {
   isAdmin: boolean;
@@ -17,11 +19,12 @@ export default function Quizzes(props: QuizzesProps) {
       questions: [{ id: "dfsdet45", questionStatement: "sdfsf" }],
     },
   ]);
+  const [isCreateQuizOpen, setIsCreateQuizOpen] = useState(false);
   const navigate = useNavigate();
   const { isAdmin } = props;
 
   const handleQuizCardClick = (quizId: string) => {
-    navigate(`/admin/quiz/${quizId}`);
+    navigate(isAdmin ? `/admin/quiz/${quizId}` : `/quiz/${quizId}`);
   };
 
   return (
@@ -31,7 +34,9 @@ export default function Quizzes(props: QuizzesProps) {
       </Typography>
       {isAdmin && (
         <Grid container justifyContent={"end"} py={2}>
-          <CustomButton>Create Quiz</CustomButton>
+          <CustomButton onClick={() => setIsCreateQuizOpen(true)}>
+            Create Quiz
+          </CustomButton>
         </Grid>
       )}
       {quizzes?.map(({ id, title, questions }) => (
@@ -42,6 +47,21 @@ export default function Quizzes(props: QuizzesProps) {
           onClick={() => handleQuizCardClick(id)}
         />
       ))}
+      {isCreateQuizOpen && (
+        <CustomDialog
+          title="Create Quiz"
+          onClose={() => setIsCreateQuizOpen(false)}
+        >
+          <Grid container p={2}>
+            <Grid size={{ xs: 10 }} pr={2}>
+              <InputField label="Quiz Title" />
+            </Grid>
+            <Grid size={{ xs: 2 }}>
+              <CustomButton>Create</CustomButton>
+            </Grid>
+          </Grid>
+        </CustomDialog>
+      )}
     </Grid>
   );
 }
