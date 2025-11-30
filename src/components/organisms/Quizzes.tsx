@@ -3,7 +3,7 @@ import QuizCard from "../molecules/QuizCard";
 import { Grid, Typography } from "@mui/material";
 import CustomButton from "../atoms/CustomButton";
 import { useNavigate } from "react-router-dom";
-import { Quiz } from "../../types/types";
+import { QuestionType, Quiz } from "../../types/types";
 import CustomDialog from "../molecules/CustomDialog";
 import InputField from "../atoms/InputField";
 
@@ -16,7 +16,13 @@ export default function Quizzes(props: QuizzesProps) {
     {
       id: "ghj2h4f5h3",
       title: "Sample",
-      questions: [{ id: "dfsdet45", questionStatement: "sdfsf" }],
+      questions: [
+        {
+          id: "dfsdet45",
+          questionStatement: "sdfsf",
+          questionType: QuestionType.MCQ,
+        },
+      ],
     },
   ]);
   const [isCreateQuizOpen, setIsCreateQuizOpen] = useState(false);

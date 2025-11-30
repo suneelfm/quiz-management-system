@@ -1,6 +1,6 @@
 import { Card, Grid, Typography } from "@mui/material";
 import React from "react";
-import { Question } from "../../types/types";
+import { Question, QuestionType } from "../../types/types";
 import RadioButton from "../atoms/RadioButton";
 
 type QuestionsCardProps = {
@@ -19,10 +19,14 @@ export default function QuestionsCard(props: QuestionsCardProps) {
         Question statement
       </Typography>
       <Grid container py={1} px={2}>
-        {question.options?.map((option, index) => (
+        {(question.questionType === QuestionType.MCQ
+          ? question.options
+          : ["Yes", "No"]
+        )?.map((option, index) => (
           <Grid
             key={`option-${index + 1}`}
-            size={{ xs: 12, sm: 6, lg: 12 / (question.options?.length ?? 1) }}>
+            size={{ xs: 12, sm: 6, lg: 12 / (question.options?.length ?? 1) }}
+          >
             {isAdmin ? (
               `${index + 1}. ${option}`
             ) : (
