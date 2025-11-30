@@ -8,7 +8,11 @@ type SelectFiledProps = {
 export default function SelectFiled(props: SelectFiledProps) {
   const { label, options } = props;
   return (
-    <select className={styles.field}>
+    <select
+      defaultValue={label}
+      className={styles.field}
+      style={{ width: "100%" }}
+    >
       <option disabled value={label}>
         {label}
       </option>

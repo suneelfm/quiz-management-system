@@ -14,6 +14,14 @@ export default function RadioButton(props: RadioButtonProps) {
       checked={checked}
       control={<Radio />}
       label={label}
+      title={label}
+      sx={{
+        maxWidth: "100%",
+        "& .MuiFormControlLabel-label": {
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+        },
+      }}
     />
   );
 }
