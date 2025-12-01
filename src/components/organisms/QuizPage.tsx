@@ -58,15 +58,25 @@ export default function QuizPage(props: QuizPageProps) {
           }
         />
       ))}
+      {!isAdmin && (
+        <Grid container justifyContent={"end"} width={"100%"}>
+          <CustomButton
+            onClick={() => {
+              console.log(answers);
+            }}>
+            Submit
+          </CustomButton>
+        </Grid>
+      )}
       {isAddQuestionOpen && (
         <CustomDialog
           title="Add Question"
-          onClose={() => setIsAddQuestionOpen(false)}
-        >
+          onClose={() => setIsAddQuestionOpen(false)}>
           <Grid container p={2}>
             <Grid size={{ xs: 8 }} pr={2}>
               <InputField
                 label="Question Statement"
+                value={questionDetails?.questionStatement}
                 onChange={(event) =>
                   setQuestionDetails({
                     ...questionDetails,
@@ -78,6 +88,7 @@ export default function QuizPage(props: QuizPageProps) {
             <Grid size={{ xs: 4 }}>
               <SelectFiled
                 label="Question Type"
+                value={questionDetails?.questionType}
                 options={[
                   QuestionType.MCQ,
                   QuestionType.YesNo,
@@ -102,16 +113,55 @@ export default function QuizPage(props: QuizPageProps) {
                 <InputField
                   value={option}
                   label={`Option ${i + 1}`}
-                  onChange={() => {}}
+                  onChange={(event) => {
+                    const optionCopy = [...(questionDetails.options ?? [])];
+                    optionCopy[i] = event.target.value;
+                    setQuestionDetails({
+                      ...questionDetails,
+                      options: optionCopy,
+                    });
+                  }}
                 />
               </Grid>
             ))}
+            {questionDetails?.questionType && (
+              <Grid size={12} p={1}>
+                {questionDetails?.questionType === QuestionType.Text ? (
+                  <InputField
+                    value={questionDetails.answer}
+                    label={"Answer"}
+                    onChange={(event) => {
+                      setQuestionDetails({
+                        ...questionDetails,
+                        answer: event.target.value,
+                      });
+                    }}
+                  />
+                ) : (
+                  <SelectFiled
+                    label="Answer"
+                    value={questionDetails.answer}
+                    options={
+                      (questionDetails?.questionType === QuestionType.MCQ
+                        ? questionDetails.options
+                        : ["Yes", "No"]) ?? []
+                    }
+                    onChange={(event) => {
+                      setQuestionDetails({
+                        ...questionDetails,
+                        answer: event.target.value,
+                      });
+                    }}
+                  />
+                )}
+              </Grid>
+            )}
+
             <Grid
               size={12}
               py={2}
               display={"flex"}
-              justifyContent={"space-between"}
-            >
+              justifyContent={"space-between"}>
               {questionDetails?.questionType === QuestionType.MCQ && (
                 <CustomButton
                   disabled={(questionDetails.options?.length ?? 0) >= 4}
@@ -122,12 +172,16 @@ export default function QuizPage(props: QuizPageProps) {
                       ...questionDetails,
                       options: optionsCopy,
                     });
-                  }}
-                >
+                  }}>
                   Add Option
                 </CustomButton>
               )}
-              <CustomButton>Create Question</CustomButton>
+              <CustomButton
+                onClick={() => {
+                  console.log(questionDetails);
+                }}>
+                Create Question
+              </CustomButton>
             </Grid>
           </Grid>
         </CustomDialog>

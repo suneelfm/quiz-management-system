@@ -4,17 +4,18 @@ import styles from "../../styles/Atoms.module.css";
 type SelectFiledProps = {
   label: string;
   options: any[];
+  value?: string | number | readonly string[];
   onChange?: ChangeEventHandler<HTMLSelectElement>;
 };
 export default function SelectFiled(props: SelectFiledProps) {
-  const { label, options, onChange } = props;
+  const { label, options, value, onChange } = props;
   return (
     <select
       defaultValue={label}
       className={styles.field}
+      value={value}
       style={{ width: "100%" }}
-      onChange={onChange}
-    >
+      onChange={onChange}>
       <option disabled value={label}>
         {label}
       </option>
