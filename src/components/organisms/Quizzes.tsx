@@ -57,12 +57,12 @@ export default function Quizzes(props: QuizzesProps) {
           </CustomButton>
         </Grid>
       )}
-      {quizzes?.map(({ id, quizTitle, noQuestions }) => (
+      {quizzes?.map(({ _id, quizTitle, noQuestions }) => (
         <QuizCard
-          key={id}
+          key={_id}
           title={quizTitle}
           noOfQuestions={noQuestions}
-          onClick={() => handleQuizCardClick(id)}
+          onClick={() => handleQuizCardClick(_id)}
         />
       ))}
       {isCreateQuizOpen && (
