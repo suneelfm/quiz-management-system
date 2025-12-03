@@ -14,7 +14,7 @@ export default function CustomButton(props: CustomButtonProps) {
     <Button
       variant="contained"
       color="secondary"
-      sx={{ borderRadius: "10px", ...sx }}
+      sx={{ borderRadius: "10px", textTransform: "capitalize", ...sx }}
       onClick={onClick}
       {...rest}>
       {children}

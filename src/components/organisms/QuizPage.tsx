@@ -1,61 +1,171 @@
 import { Grid, Typography } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import CustomButton from "../atoms/CustomButton";
 import QuestionsCard from "../molecules/QuestionsCard";
-import { Question, QuestionType } from "../../types/types";
+import { Question, QuestionType, Quiz } from "../../types/types";
 import CustomDialog from "../molecules/CustomDialog";
 import InputField from "../atoms/InputField";
 import SelectFiled from "../atoms/SelectFiled";
+import axios from "axios";
+import { useNavigate, useParams } from "react-router-dom";
+import ConfirmationDialog from "../molecules/ConfirmationDialog";
 
 type QuizPageProps = {
   isAdmin: boolean;
 };
 export default function QuizPage(props: QuizPageProps) {
-  const [questions, setQuestions] = useState<Question[]>([
-    {
-      id: "hjhg234",
-      questionStatement: "sdgsdhsfh",
-      questionType: QuestionType.MCQ,
-      options: [
-        "sdfdsdffsdfsdfsdfsdfsdfdsfxcxcbxcnbxcnxcn",
-        "sdf",
-        "werd",
-        "wer",
-      ],
-      answer: "sdf",
-    },
-  ]);
-  const [questionDetails, setQuestionDetails] = useState<Question>();
+  const [quiz, setQuiz] = useState<Quiz>();
+  const [quizTitle, setQuizTitle] = useState<{
+    edit?: boolean;
+    title?: string;
+  }>();
+  const [questions, setQuestions] = useState<Question[]>();
+  const [questionDetails, setQuestionDetails] = useState<Question | null>();
   const [answers, setAnswers] = useState<{ [questionId: string]: string }>();
   const [isAddQuestionOpen, setIsAddQuestionOpen] = useState<boolean>(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   const { isAdmin } = props;
+
+  const navigate = useNavigate();
+  const params = useParams<{ quizId: string }>();
+
+  const getQuestions = () => {
+    axios
+      .get(`http://localhost:8081/question/${params.quizId}`)
+      .then((res) => {
+        setQuestions(res.data.data);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  };
+
+  const getQuiz = () => {
+    axios
+      .get(`http://localhost:8081/quiz/${params.quizId}`)
+      .then((res) => {
+        setQuiz(res.data.data);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  };
+
+  useEffect(() => {
+    getQuiz();
+    getQuestions();
+  }, []);
 
   const handleAnswerSelections = (questionId: string, answer: string) => {
     setAnswers((pre) => ({ ...pre, [questionId]: answer }));
   };
+
+  const handleQuestionCreation = () => {
+    (questionDetails?._id
+      ? axios.put("http://localhost:8081/question", questionDetails)
+      : axios.post("http://localhost:8081/question", {
+          quizId: params.quizId,
+          ...questionDetails,
+        })
+    )
+      .then(() => {
+        setQuestionDetails(null);
+        setIsAddQuestionOpen(false);
+        getQuestions();
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  };
+
+  const handleDeleteQuiz = () => {
+    axios
+      .delete(`http://localhost:8081/quiz/${params.quizId}`)
+      .then(() => {
+        navigate(isAdmin ? "/admin" : "/", { replace: true });
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  };
+
+  const handleEditQuiz = () => {
+    axios
+      .put("http://localhost:8081/quiz", {
+        _id: params.quizId,
+        quizTitle: quizTitle?.title,
+      })
+      .then(() => {
+        getQuiz();
+        setQuizTitle({ edit: false, title: "" });
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  };
+
   return (
     <Grid container p={3}>
       <Grid size={12} display={"flex"} mb={3}>
-        <Typography width={"calc(100% - 145px)"} variant="h6">
-          Quiz Title
+        <Typography width={"calc(100% - 284px)"} variant="h6">
+          {quizTitle?.edit ? (
+            <Grid display={"inline-block"} width={"calc(100% - 100px)"}>
+              <InputField
+                label="Quiz Title"
+                value={quizTitle?.title}
+                onChange={(event) =>
+                  setQuizTitle({ ...quizTitle, title: event.target.value })
+                }
+                onBlur={handleEditQuiz}
+              />
+            </Grid>
+          ) : (
+            quiz?.quizTitle
+          )}
+          {isAdmin && (
+            <span
+              style={{
+                fontSize: "12px",
+                cursor: "pointer",
+                color: "dodgerblue",
+                marginLeft: "10px",
+              }}
+              onClick={() =>
+                setQuizTitle({ edit: true, title: quiz?.quizTitle })
+              }>
+              Edit
+            </span>
+          )}
         </Typography>
         {isAdmin && (
-          <CustomButton onClick={() => setIsAddQuestionOpen(true)}>
-            Add Question
-          </CustomButton>
+          <>
+            <CustomButton
+              sx={{ marginRight: "12px" }}
+              onClick={() => setConfirmDelete(true)}>
+              Delete Quiz
+            </CustomButton>
+            <CustomButton onClick={() => setIsAddQuestionOpen(true)}>
+              Add Question
+            </CustomButton>
+          </>
         )}
       </Grid>
 
-      {questions.map((question) => (
+      {questions?.map((question) => (
         <QuestionsCard
-          key={question.id}
+          key={question._id}
           isAdmin={isAdmin}
           question={question}
-          answer={answers?.[question.id ?? ""]}
+          answer={answers?.[question._id ?? ""]}
           onAnswerSelect={(option) =>
-            handleAnswerSelections(question.id ?? "", option)
+            handleAnswerSelections(question._id ?? "", option)
           }
+          onEditClick={() => {
+            setQuestionDetails(question);
+            setIsAddQuestionOpen(true);
+          }}
+          onQuestionDelete={getQuestions}
         />
       ))}
       {!isAdmin && (
@@ -71,7 +181,10 @@ export default function QuizPage(props: QuizPageProps) {
       {isAddQuestionOpen && (
         <CustomDialog
           title="Add Question"
-          onClose={() => setIsAddQuestionOpen(false)}>
+          onClose={() => {
+            questionDetails?._id && setQuestionDetails(null);
+            setIsAddQuestionOpen(false);
+          }}>
           <Grid container p={2}>
             <Grid size={{ xs: 8 }} pr={2}>
               <InputField
@@ -115,7 +228,7 @@ export default function QuizPage(props: QuizPageProps) {
                   label={`Option ${i + 1}`}
                   onChange={(event) => {
                     const optionCopy = [...(questionDetails.options ?? [])];
-                    optionCopy[i] = event.target.value;
+                    optionCopy.splice(i, 1, event.target.value);
                     setQuestionDetails({
                       ...questionDetails,
                       options: optionCopy,
@@ -176,15 +289,19 @@ export default function QuizPage(props: QuizPageProps) {
                   Add Option
                 </CustomButton>
               )}
-              <CustomButton
-                onClick={() => {
-                  console.log(questionDetails);
-                }}>
-                Create Question
+              <CustomButton onClick={handleQuestionCreation}>
+                {questionDetails?._id ? "Update" : "Create"} Question
               </CustomButton>
             </Grid>
           </Grid>
         </CustomDialog>
+      )}
+      {confirmDelete && (
+        <ConfirmationDialog
+          title="Are you sure you want to delete this quiz?"
+          onConfirm={handleDeleteQuiz}
+          onDecline={() => setConfirmDelete(false)}
+        />
       )}
     </Grid>
   );
