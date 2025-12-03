@@ -10,6 +10,7 @@ export type Question = {
   questionType?: QuestionType | string;
   options?: string[];
   answer?: string;
+  marks?: number;
 };
 
 export type Quiz = {

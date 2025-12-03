@@ -24,6 +24,11 @@ export default function QuizPage(props: QuizPageProps) {
   const [answers, setAnswers] = useState<{ [questionId: string]: string }>();
   const [isAddQuestionOpen, setIsAddQuestionOpen] = useState<boolean>(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [result, setResult] = useState<{
+    message: string;
+    result: number;
+    total: number;
+  } | null>(null);
 
   const { isAdmin } = props;
 
@@ -105,6 +110,22 @@ export default function QuizPage(props: QuizPageProps) {
       });
   };
 
+  const submitQuiz = () => {
+    if (Boolean(answers)) {
+      axios
+        .post("http://localhost:8081/quiz/submit", {
+          quizId: params.quizId,
+          answers,
+        })
+        .then((res) => {
+          setResult(res.data);
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    }
+  };
+
   return (
     <Grid container p={3}>
       <Grid size={12} display={"flex"} mb={3}>
@@ -170,12 +191,7 @@ export default function QuizPage(props: QuizPageProps) {
       ))}
       {!isAdmin && (
         <Grid container justifyContent={"end"} width={"100%"}>
-          <CustomButton
-            onClick={() => {
-              console.log(answers);
-            }}>
-            Submit
-          </CustomButton>
+          <CustomButton onClick={submitQuiz}>Submit</CustomButton>
         </Grid>
       )}
       {isAddQuestionOpen && (
@@ -269,6 +285,17 @@ export default function QuizPage(props: QuizPageProps) {
                 )}
               </Grid>
             )}
+            <InputField
+              value={questionDetails?.marks}
+              label={"Marks"}
+              type="number"
+              onChange={(event) => {
+                setQuestionDetails({
+                  ...questionDetails,
+                  marks: parseInt(event.target.value),
+                });
+              }}
+            />
 
             <Grid
               size={12}
@@ -301,6 +328,13 @@ export default function QuizPage(props: QuizPageProps) {
           title="Are you sure you want to delete this quiz?"
           onConfirm={handleDeleteQuiz}
           onDecline={() => setConfirmDelete(false)}
+        />
+      )}
+      {Boolean(result) && (
+        <ConfirmationDialog
+          title="Congratulation you have successfully submitted your quiz."
+          subtitle={`You have scored ${result?.result} out of ${result?.total}`}
+          onConfirm={() => setResult(null)}
         />
       )}
     </Grid>
