@@ -1,14 +1,13 @@
-import React, { ChangeEventHandler, FocusEventHandler } from "react";
+import React, { InputHTMLAttributes } from "react";
 import styles from "../../styles/Atoms.module.css";
 
 type InputFieldProps = {
   label: string;
-  value?: string;
-  onChange?: ChangeEventHandler<HTMLInputElement>;
-  onBlur?: FocusEventHandler<HTMLInputElement>;
 };
-export default function InputField(props: InputFieldProps) {
-  const { label, value, onChange, onBlur } = props;
+export default function InputField(
+  props: InputFieldProps & InputHTMLAttributes<HTMLInputElement>
+) {
+  const { label, value, onChange, onBlur, ...rest } = props;
   return (
     <input
       className={styles.field}
@@ -16,6 +15,7 @@ export default function InputField(props: InputFieldProps) {
       onChange={onChange}
       onBlur={onBlur}
       placeholder={label}
+      {...rest}
     />
   );
 }
